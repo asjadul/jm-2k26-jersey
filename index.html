@@ -93,7 +93,8 @@ button{cursor:pointer}
   border:1px solid rgba(67,140,255,.22);
 }
 .price-label{color:var(--muted);font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.07em}
-.price{font-size:25px;font-weight:950;color:#fff}
+.price{font-size:25px;font-weight:950;color:#fff;transition:all .28s ease;min-width:72px}
+.price.price-live{animation:pricePop .35s ease-out}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 .field{margin-bottom:14px}
 .field.full{grid-column:1/-1}
@@ -168,29 +169,63 @@ hr{
 }
 .status-row button:hover{background:#192433}
 .status-row button:disabled{opacity:.6;cursor:not-allowed}
-.msg{display:none;margin-top:14px;padding:14px;border-radius:13px;font-size:12px;line-height:1.55}
-.msg.show{display:block;animation:toastIn .2s ease-out}
-.ok{background:rgba(25,196,99,.09);border:1px solid rgba(25,196,99,.4);color:#c9f7dc}
-.err{background:rgba(240,68,68,.09);border:1px solid rgba(240,68,68,.4);color:#ffd0d0}
-.pending{background:rgba(244,183,64,.09);border:1px solid rgba(244,183,64,.4);color:#ffe9ad}
+.msg{display:none;margin-top:14px;padding:14px;border-radius:13px;font-size:12px;line-height:1.55;position:relative;overflow:hidden}
+.msg.show{display:flex;align-items:center;gap:11px;animation:msgIn .42s cubic-bezier(.2,.8,.2,1)}
+.msg::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 20%,rgba(255,255,255,.07) 45%,transparent 70%);transform:translateX(-120%)}
+.msg.show::after{animation:msgShine .9s ease .12s both}
+.msg-icon{width:30px;height:30px;flex:0 0 30px;border-radius:50%;display:grid;place-items:center;font-size:15px;font-weight:950;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12)}
+.msg-copy{min-width:0}
+.msg-copy b{font-weight:950}
+.success-layout{width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px}
+.success-main{min-width:0;flex:1}
+.order-copy-panel{flex:0 0 230px;text-align:center;padding:12px 14px;border:1px solid rgba(67,140,255,.28);background:rgba(67,140,255,.06);border-radius:12px}
+.order-copy-title{font-size:10px;line-height:1.4;color:#bcd0ec;font-weight:900;margin-bottom:8px}
+.order-accept-note{margin-top:8px;font-size:11px;line-height:1.5;color:#b9c9d9;font-weight:700}
+.order-id-line{font-size:12px;margin-bottom:8px}
+.order-copy-btn{width:100%;padding:8px 11px;border-radius:9px;border:1px solid #344c69;background:#111d2b;color:#dbe9ff;font-size:10px;font-weight:950;letter-spacing:.05em;cursor:pointer;transition:.18s}
+.order-copy-btn:hover{background:#192b40;border-color:#4c76a8;transform:translateY(-1px)}
+.order-copy-btn.copied{background:rgba(25,196,99,.12);border-color:rgba(25,196,99,.45);color:#c9f7dc}
+.help-notice{width:fit-content;max-width:92%;margin:16px auto;padding:12px 18px;border:1px solid rgba(67,140,255,.28);border-left:4px solid #438cff;border-radius:10px;background:rgba(67,140,255,.09);color:#d5e4f8;font-size:13px;font-weight:800;line-height:1.55;text-align:center;letter-spacing:.01em;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.ok{background:rgba(25,196,99,.09);border:1px solid rgba(25,196,99,.4);color:#c9f7dc;box-shadow:0 10px 30px rgba(25,196,99,.08)}
+.ok .msg-icon{background:rgba(25,196,99,.15);border-color:rgba(25,196,99,.38);animation:iconPop .45s cubic-bezier(.2,.9,.3,1.2)}
+.err{background:rgba(240,68,68,.09);border:1px solid rgba(240,68,68,.4);color:#ffd0d0;box-shadow:0 10px 30px rgba(240,68,68,.07)}
+.err .msg-icon{background:rgba(240,68,68,.14);border-color:rgba(240,68,68,.38);animation:iconShake .42s ease-out}
+.pending{background:rgba(244,183,64,.09);border:1px solid rgba(244,183,64,.4);color:#ffe9ad;box-shadow:0 10px 30px rgba(244,183,64,.07)}
+.pending .msg-icon{background:rgba(244,183,64,.14);border-color:rgba(244,183,64,.38);animation:pendingPulse 1.2s ease-in-out infinite}
+.not-found{background:rgba(240,68,68,.07);border:1px solid rgba(240,68,68,.35);color:#ffd0d0;box-shadow:0 10px 30px rgba(240,68,68,.06)}
+.not-found .msg-icon{background:rgba(240,68,68,.13);border-color:rgba(240,68,68,.35);animation:iconShake .42s ease-out}
+.success-msg{margin-top:12px}
+
 .loading-overlay{
   position:fixed;inset:0;z-index:100;background:rgba(3,5,8,.78);
   backdrop-filter:blur(8px);display:none;align-items:center;justify-content:center;padding:20px;
 }
 .loading-overlay.show{display:flex}
 .loader-card{
-  width:min(330px,100%);padding:28px;text-align:center;border-radius:21px;
-  background:#0e151f;border:1px solid #2b3949;box-shadow:0 25px 70px rgba(0,0,0,.55);
+  width:min(340px,100%);padding:30px;text-align:center;border-radius:22px;
+  background:linear-gradient(145deg,#101a26,#0a1017);border:1px solid #2b3949;box-shadow:0 25px 70px rgba(0,0,0,.55);
+  animation:loaderIn .28s cubic-bezier(.2,.8,.2,1);
 }
+.loader-card::after{content:"";display:block;height:2px;margin-top:18px;border-radius:99px;background:linear-gradient(90deg,transparent,var(--blue2),transparent);animation:loaderBar 1.25s ease-in-out infinite}
+
 .spinner{
-  width:44px;height:44px;border-radius:50%;border:4px solid #263447;
-  border-top-color:var(--blue2);animation:spin .75s linear infinite;margin:0 auto 15px;
+  width:48px;height:48px;border-radius:50%;border:4px solid #263447;
+  border-top-color:var(--blue2);border-right-color:#80aaff;animation:spin .72s linear infinite;margin:0 auto 15px;
+  box-shadow:0 0 24px rgba(67,140,255,.18)
 }
 .loader-title{font-weight:950;font-size:14px}
 .loader-text{color:var(--muted);font-size:11px;margin-top:5px}
 .footer{text-align:center;color:#4f5d6d;font-size:10px;margin-top:15px}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes msgIn{from{opacity:0;transform:translateY(12px) scale(.985)}to{opacity:1;transform:none}}
+@keyframes msgShine{to{transform:translateX(120%)}}
+@keyframes iconPop{0%{transform:scale(.55);opacity:.2}70%{transform:scale(1.14)}100%{transform:scale(1);opacity:1}}
+@keyframes iconShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}50%{transform:translateX(4px)}75%{transform:translateX(-2px)}}
+@keyframes pendingPulse{0%,100%{box-shadow:0 0 0 0 rgba(244,183,64,.2)}50%{box-shadow:0 0 0 7px rgba(244,183,64,0)}}
+@keyframes pricePop{0%{transform:scale(.88);opacity:.45}70%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+@keyframes loaderIn{from{opacity:0;transform:translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes loaderBar{0%,100%{opacity:.35;transform:scaleX(.45)}50%{opacity:1;transform:scaleX(1)}}
 @media(max-width:600px){
   .corner-logo{width:70px;height:62px;left:9px;top:8px}
   .wrap{width:min(100% - 18px,760px);padding-top:20px}
@@ -204,11 +239,13 @@ hr{
   .status-row button{width:100%}
   .bk-row{align-items:stretch;flex-direction:column}
   .copy-btn{width:100%}
+  .success-layout{align-items:stretch;flex-direction:column;gap:12px}
+  .order-copy-panel{flex:0 0 auto;width:100%;box-sizing:border-box}
 }
 @media(max-width:390px){
   .corner-logo{width:58px;height:53px}
   .hero-logo{width:290px}
-  .price-box{align-items:flex-start;flex-direction:column;gap:4px}
+ .price-box{align-items:flex-start;flex-direction:column;gap:4px}
 }
 
 .help-card{
@@ -293,12 +330,12 @@ hr{
   <section class="card">
     <h2 class="section-title"><span class="num">01</span> Order Details</h2>
 
-    <div class="price-box">
+    <div class="price-box" id="priceBox">
       <div>
         <div class="price-label">Jersey Price</div>
-        <div class="price">৳500</div>
+        <div class="price" id="price">Select variant</div>
       </div>
-      <div style="color:#8b98a8;font-size:11px;text-align:right">Official batch jersey<br>J.M. 2K26</div>
+      <div id="priceNote" style="color:#8b98a8;font-size:11px;text-align:right">Choose Full sleeve or Half sleeve<br>to see the price</div>
     </div>
 
     <form id="orderForm">
@@ -308,14 +345,9 @@ hr{
           <input id="student" placeholder="Enter your full name" required>
         </div>
 
-        <div class="field">
+        <div class="field full">
           <label for="jerseyName">JERSEY NAME</label>
-          <input id="jerseyName" maxlength="22" placeholder="Max 22 characters" required>
-        </div>
-
-        <div class="field">
-          <label for="number">JERSEY NUMBER</label>
-          <input id="number" type="number" placeholder="Enter jersey number" required>
+          <input id="jerseyName" maxlength="22" placeholder="Enter the name for your jersey (Max 22 characters)" required>
         </div>
 
         <div class="field">
@@ -332,6 +364,20 @@ hr{
         </div>
 
         <div class="field">
+          <label for="variant">JERSEY VARIANT</label>
+          <select id="variant" required>
+            <option value="">Select sleeve type</option>
+            <option value="Full Sleeve">Full sleeve / ফুলহাতা</option>
+            <option value="Half Sleeve">Half sleeve / হাফহাতা</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="number">JERSEY NUMBER</label>
+          <input id="number" type="number" min="0" max="99" placeholder="Enter jersey number" required>
+        </div>
+
+        <div class="field">
           <label for="phone">YOUR PHONE NUMBER</label>
           <input id="phone" type="tel" inputmode="tel" placeholder="01XXXXXXXXX" required>
         </div>
@@ -340,7 +386,7 @@ hr{
       <div class="pay">
         <div class="pay-head">
           <div class="pay-title">bKash Payment</div>
-          <div class="pay-badge">৳500 Required</div>
+          <div class="pay-badge" id="payBadge">Select variant</div>
         </div>
         <div class="bk-row">
           <div>
@@ -385,6 +431,8 @@ hr{
   </section>
 
 
+  <div class="help-notice">If your order is remained pending or got rejected. Please contact the numbers below.</div>
+
   <section class="help-card">
     <div class="help-title">
       <span class="help-icon">?</span>
@@ -423,6 +471,37 @@ hr{
 
 <script>
 const API_URL="https://script.google.com/macros/s/AKfycbzpLyzU6tw3DcHdNUTQqruzHq9Q2WH2DFG_ZFF7hb2L9YfHKUDiBMAKlXN0McuxWBrNmw/exec";
+const PRICE_BY_VARIANT={"Full Sleeve":399,"Half Sleeve":379};
+
+function getSelectedPrice(){
+  const variant=document.getElementById("variant").value;
+  return PRICE_BY_VARIANT[variant] || 0;
+}
+
+function updatePrice(){
+  const variant=document.getElementById("variant").value;
+  const priceEl=document.getElementById("price");
+  const badge=document.getElementById("payBadge");
+  const note=document.getElementById("priceNote");
+  const price=getSelectedPrice();
+
+  priceEl.classList.remove("price-live");
+  void priceEl.offsetWidth;
+
+  if(price){
+    priceEl.textContent="৳"+price;
+    priceEl.classList.add("price-live");
+    badge.textContent="৳"+price+" Required";
+    note.innerHTML=variant+"<br>J.M. 2K26";
+  }else{
+    priceEl.textContent="Select variant";
+    badge.textContent="Select variant";
+    note.innerHTML="Choose Full sleeve or Half sleeve<br>to see the price";
+  }
+}
+
+document.getElementById("variant").addEventListener("change",updatePrice);
+updatePrice();
 
 const overlay=document.getElementById("loadingOverlay");
 const loaderTitle=document.getElementById("loaderTitle");
@@ -433,10 +512,34 @@ function setOverlay(show,title="Processing...",text="Please wait a moment."){
   loaderText.textContent=text;
   overlay.classList.toggle("show",show);
 }
-function show(el,text,good,type){
-  el.style.display="block";
+function show(el,text,good,type,icon){
+  el.style.display="flex";
   el.className="msg show " + (type || (good ? "ok" : "err"));
-  el.innerHTML=text;
+  el.innerHTML='<span class="msg-icon">'+(icon || (good ? "✓" : "!"))+'</span><span class="msg-copy">'+text+'</span>';
+}
+
+function showSuccessOrder(orderId,variant,price){
+  const el=document.getElementById("msg");
+  el.style.display="flex";
+  el.className="msg show ok";
+  el.innerHTML=
+    '<span class="msg-icon">✓</span>' +
+    '<div class="success-layout">' +
+      '<div class="success-main">' +
+        '<b>Order submitted successfully!</b><br>' +
+        'Order ID: <b>'+orderId+'</b><br>' +
+        'Jersey: '+variant+' · ৳'+price+'<br>' +
+        'Status: Payment Verification Pending<br>' +
+        '<div class="order-accept-note">Your order will be accepted or rejected within 3 to 4 hours.</div>' +
+      '</div>' +
+      '<div class="order-copy-panel">' +
+        '<div class="order-copy-title">Please Copy Your Order ID To Check Order Status</div>' +
+        '<div class="order-id-line"><b>'+orderId+'</b></div>' +
+        '<button type="button" class="order-copy-btn" id="copyOrderBtn">COPY ORDER ID</button>' +
+      '</div>' +
+    '</div>';
+  const copyBtn=document.getElementById("copyOrderBtn");
+  if(copyBtn) copyBtn.onclick=()=>copyOrderId(orderId);
 }
 function setButtonLoading(btn,loading,label){
   btn.disabled=loading;
@@ -456,11 +559,32 @@ async function copyBkash(){
   }catch(e){}
 }
 
+async function copyOrderId(orderId){
+  try{
+    await navigator.clipboard.writeText(orderId);
+    const btn=document.getElementById("copyOrderBtn");
+    if(!btn) return;
+    const old=btn.textContent;
+    btn.textContent="COPIED ✓";
+    btn.classList.add("copied");
+    setTimeout(()=>{
+      btn.textContent=old;
+      btn.classList.remove("copied");
+    },1600);
+  }catch(e){
+    const btn=document.getElementById("copyOrderBtn");
+    if(btn){
+      btn.textContent="COPY FAILED";
+      setTimeout(()=>btn.textContent="COPY ORDER ID",1600);
+    }
+  }
+}
+
 document.getElementById("orderForm").onsubmit=async function(e){
   e.preventDefault();
 
   if(API_URL.includes("PASTE_")){
-    show(document.getElementById("msg"),"Admin setup বাকি: Apps Script Web App URL বসাতে হবে.",false);
+    show(document.getElementById("msg"),"Admin setup বাকি: Apps Script Web App URL বসাতে হবে.",false,"err","!");
     return;
   }
 
@@ -468,12 +592,24 @@ document.getElementById("orderForm").onsubmit=async function(e){
   setButtonLoading(submitBtn,true,"SUBMIT ORDER");
   setOverlay(true,"Submitting your order","Connecting to the order system...");
 
+  const variant=document.getElementById("variant").value;
+  const price=getSelectedPrice();
+
+  if(!variant || !price){
+    show(document.getElementById("msg"),"Please select a jersey variant first.",false,"err","!");
+    setOverlay(false);
+    setButtonLoading(submitBtn,false,"SUBMIT ORDER");
+    return;
+  }
+
   const data={
     action:"createOrder",
     student:document.getElementById("student").value,
     jerseyName:document.getElementById("jerseyName").value,
     number:document.getElementById("number").value,
     size:document.getElementById("size").value,
+    variant:variant,
+    price:price,
     phone:document.getElementById("phone").value,
     trx:document.getElementById("trx").value
   };
@@ -483,19 +619,14 @@ document.getElementById("orderForm").onsubmit=async function(e){
     let j=await r.json();
 
     if(j.ok){
-      show(
-        document.getElementById("msg"),
-        "✅ <b>Order submitted successfully!</b><br>" +
-        "Order ID: <b>" + j.orderId + "</b><br>" +
-        "Status: 🟡 Payment Verification Pending",
-        true,"ok"
-      );
+      showSuccessOrder(j.orderId,variant,price);
       document.getElementById("orderForm").reset();
+      updatePrice();
     }else{
-      show(document.getElementById("msg"),j.error || "Order submission failed.",false);
+      show(document.getElementById("msg"),j.error || "Order submission failed.",false,"err","!");
     }
   }catch(error){
-    show(document.getElementById("msg"),"Submission failed. Please check your connection and try again.",false);
+    show(document.getElementById("msg"),"Submission failed. Please check your connection and try again.",false,"err","!");
   }finally{
     setOverlay(false);
     setButtonLoading(submitBtn,false,"SUBMIT ORDER");
@@ -504,13 +635,13 @@ document.getElementById("orderForm").onsubmit=async function(e){
 
 async function checkStatus(){
   if(API_URL.includes("PASTE_")){
-    show(document.getElementById("statusMsg"),"Admin setup বাকি।",false);
+    show(document.getElementById("statusMsg"),"Admin setup বাকি।",false,"err","!");
     return;
   }
 
   let id=document.getElementById("orderId").value.trim();
   if(!id){
-    show(document.getElementById("statusMsg"),"Please enter your Order ID.",false);
+    show(document.getElementById("statusMsg"),"Please enter your Order ID.",false,"err","!");
     return;
   }
 
@@ -523,30 +654,44 @@ async function checkStatus(){
     let j=await r.json();
 
     if(!j.ok){
-      show(document.getElementById("statusMsg"),j.error || "Order not found.",false);
+      show(
+        document.getElementById("statusMsg"),
+        "<b>Order not found</b><br>" + (j.error || "No order matched that Order ID."),
+        false,"not-found","?"
+      );
       return;
     }
 
     let status=j.status;
     let statusClass="pending";
-    let icon="🟡";
+    let icon="•";
+    let statusText="Payment verification is still pending.";
+    let good=false;
 
     if(status==="Accepted"){
       statusClass="ok";
-      icon="🟢";
+      icon="✓";
+      statusText="Payment verified — your order has been accepted.";
+      good=true;
     }else if(status==="Rejected"){
       statusClass="err";
-      icon="🔴";
+      icon="×";
+      statusText="Payment verification was rejected. Please contact admin.";
+    }else{
+      statusClass="pending";
+      icon="…";
+      statusText="Payment verification is still pending.";
     }
 
     show(
       document.getElementById("statusMsg"),
-      "<b>" + j.orderId + "</b><br>Payment: " + icon + " " + status,
-      status==="Accepted",
-      statusClass
+      "<b>" + j.orderId + "</b><br>Payment: " + status + "<br><span style=\"opacity:.8\">" + statusText + "</span>",
+      good,
+      statusClass,
+      icon
     );
   }catch(error){
-    show(document.getElementById("statusMsg"),"Could not check status. Please try again.",false);
+    show(document.getElementById("statusMsg"),"Could not check status. Please try again.",false,"err","!");
   }finally{
     setOverlay(false);
     setButtonLoading(checkBtn,false,"CHECK");
