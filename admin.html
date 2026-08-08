@@ -189,6 +189,9 @@ tbody tr:last-child td{border-bottom:0}
 .accept{background:#13783c}.accept:hover{background:#18a451}
 .reject{background:#ad2525;margin-left:5px}.reject:hover{background:#d33333}
 .locked{color:#657386;font-size:10px;font-weight:800}
+input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:pointer}
+.delete-note{color:#ff7777;font-size:11px;margin-top:9px}
+.key-modal-input{width:100%;margin-top:14px}
 .empty{text-align:center;color:#6d7a8b;padding:32px!important}
 .footer{text-align:center;color:#4f5d6d;font-size:10px;margin-top:15px}
 
@@ -231,6 +234,20 @@ tbody tr:last-child td{border-bottom:0}
     <div class="modal-actions">
       <button class="cancel" onclick="closeConfirm()">CANCEL</button>
       <button id="confirmBtn" class="confirm-accept" onclick="confirmStatus()">CONFIRM</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="deleteModal">
+  <div class="modal-card">
+    <div class="modal-icon" style="background:rgba(240,68,68,.10);border-color:rgba(240,68,68,.3)">🗑</div>
+    <h2>Delete selected orders?</h2>
+    <p id="deleteText">You are about to permanently delete the selected orders.</p>
+    <div class="delete-note">For security, enter your Admin Key again.</div>
+    <input class="key-modal-input" id="deleteKey" type="password" placeholder="Enter Admin Key" autocomplete="off" onkeydown="if(event.key==='Enter')confirmDelete()">
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeDeleteModal()">CANCEL</button>
+      <button class="confirm-reject" onclick="confirmDelete()">DELETE</button>
     </div>
   </div>
 </div>
@@ -278,14 +295,21 @@ tbody tr:last-child td{border-bottom:0}
 
     <section class="orders">
       <div class="orders-head">
-        <h2>📋 Orders</h2>
-        <input class="search" id="search" placeholder="Search order, name, phone, transaction..." oninput="renderFiltered()">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <h2>📋 Orders</h2>
+          <span id="selectedCount" style="font-size:10px;color:#7f8d9e;font-weight:800">0 selected</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
+          <input class="search" id="search" placeholder="Search order, name, phone, transaction..." oninput="renderFiltered()">
+          <button class="action" id="deleteSelectedBtn" onclick="askDeleteSelected()" disabled style="border-color:rgba(240,68,68,.35);color:#ff7777">🗑 DELETE SELECTED</button>
+        </div>
       </div>
 
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
+              <th style="width:40px"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" aria-label="Select all"></th>
               <th>Order ID</th>
               <th>Name</th>
               <th>Jersey</th>
@@ -298,7 +322,7 @@ tbody tr:last-child td{border-bottom:0}
             </tr>
           </thead>
           <tbody id="rows">
-            <tr><td colspan="9" class="empty">Loading orders...</td></tr>
+            <tr><td colspan="10" class="empty">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -358,7 +382,7 @@ async function load(){
     const j=await r.json();
 
     if(!j.ok){
-      toast(j.error || "Invalid admin key.","err");
+      toast((j.error==="Invalid admin key."?"Your key is wrong":(j.error||"Login failed.")),"err");
       return;
     }
 
@@ -393,6 +417,7 @@ async function loadOrders(){
     }
 
     orders=Array.isArray(j.orders)?j.orders:[];
+    selectedIds.clear();
     updateStats();
     renderFiltered();
     toast("Orders updated.");
@@ -414,39 +439,37 @@ function updateStats(){
 
 function renderFiltered(){
   const q=document.getElementById("search").value.trim().toLowerCase();
-
   const filtered=orders.filter(o=>[
     o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
   ].some(v=>String(v??"").toLowerCase().includes(q)));
 
   const rows=document.getElementById("rows");
-
   if(!filtered.length){
-    rows.innerHTML='<tr><td colspan="9" class="empty">No orders found.</td></tr>';
+    rows.innerHTML='<tr><td colspan="10" class="empty">No orders found.</td></tr>';
+    updateSelectionUI();
     return;
   }
 
   rows.innerHTML=filtered.map(o=>{
     const status=String(o.status||"Pending");
     const lower=status.toLowerCase();
-
     let cls="pending";
     if(lower==="accepted")cls="accepted";
     if(lower==="rejected")cls="rejected";
 
-    // Once accepted/rejected, action buttons disappear permanently from this UI.
     let action="";
     if(lower==="accepted"){
       action='<span class="locked">✓ Already accepted</span>';
     }else if(lower==="rejected"){
       action='<span class="locked">✕ Already rejected</span>';
     }else{
-      action=
-        '<button class="accept action-status" data-order="'+esc(o.id)+'" data-status="Accepted">ACCEPT</button>'+
-        '<button class="reject action-status" data-order="'+esc(o.id)+'" data-status="Rejected">REJECT</button>';
+      action='<button class="accept" onclick="askStatus(\''+escAttr(o.id)+'\',\'Accepted\')">ACCEPT</button>'+
+             '<button class="reject" onclick="askStatus(\''+escAttr(o.id)+'\',\'Rejected\')">REJECT</button>';
     }
 
+    const checked=selectedIds.has(String(o.id))?' checked':'';
     return '<tr>'+
+      '<td><input type="checkbox" class="order-check" data-id="'+escAttr(o.id)+'"'+checked+' onchange="toggleOne(\''+escAttr(o.id)+'\',this.checked)" aria-label="Select '+escAttr(o.id)+'"></td>'+
       '<td class="id">'+esc(o.id)+'</td>'+
       '<td>'+esc(o.student)+'</td>'+
       '<td>'+esc(o.jerseyName)+'</td>'+
@@ -458,10 +481,88 @@ function renderFiltered(){
       '<td>'+action+'</td>'+
     '</tr>';
   }).join("");
+  updateSelectionUI();
+}
 
-  document.querySelectorAll(".action-status").forEach(btn=>{
-    btn.addEventListener("click",()=>askStatus(btn.dataset.order,btn.dataset.status));
+let selectedIds=new Set();
+
+function toggleOne(id,checked){
+  id=String(id);
+  if(checked) selectedIds.add(id); else selectedIds.delete(id);
+  updateSelectionUI();
+}
+
+function toggleAll(checked){
+  const q=document.getElementById("search").value.trim().toLowerCase();
+  orders.filter(o=>[
+    o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
+  ].some(v=>String(v??"").toLowerCase().includes(q))).forEach(o=>{
+    if(checked) selectedIds.add(String(o.id)); else selectedIds.delete(String(o.id));
   });
+  renderFiltered();
+}
+
+function updateSelectionUI(){
+  const n=selectedIds.size;
+  const count=document.getElementById("selectedCount");
+  const btn=document.getElementById("deleteSelectedBtn");
+  if(count) count.textContent=n+" selected";
+  if(btn) btn.disabled=n===0;
+  const all=document.getElementById("selectAll");
+  if(all){
+    const q=document.getElementById("search").value.trim().toLowerCase();
+    const visible=orders.filter(o=>[
+      o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
+    ].some(v=>String(v??"").toLowerCase().includes(q)));
+    all.checked=visible.length>0 && visible.every(o=>selectedIds.has(String(o.id)));
+    all.indeterminate=visible.some(o=>selectedIds.has(String(o.id))) && !all.checked;
+  }
+}
+
+function askDeleteSelected(){
+  if(!selectedIds.size){
+    toast("Select at least one order first.","err");
+    return;
+  }
+  document.getElementById("deleteText").textContent=
+    "You are about to permanently delete "+selectedIds.size+" selected order(s). This cannot be undone.";
+  document.getElementById("deleteKey").value="";
+  document.getElementById("deleteModal").classList.add("show");
+  setTimeout(()=>document.getElementById("deleteKey").focus(),80);
+}
+
+function closeDeleteModal(){
+  document.getElementById("deleteModal").classList.remove("show");
+  document.getElementById("deleteKey").value="";
+}
+
+async function confirmDelete(){
+  const key=document.getElementById("deleteKey").value.trim();
+  if(!key){
+    toast("Your key is wrong","err");
+    return;
+  }
+  const ids=Array.from(selectedIds);
+  closeDeleteModal();
+  setLoading(true,"Deleting orders...","Removing "+ids.length+" selected order(s)");
+  try{
+    const r=await fetch(API_URL,{
+      method:"POST",
+      body:JSON.stringify({action:"deleteOrders",key:key,orderIds:ids})
+    });
+    const j=await r.json();
+    if(!j.ok){
+      toast(j.error || "Your key is wrong","err");
+      return;
+    }
+    selectedIds.clear();
+    toast("Selected orders deleted successfully.");
+    await loadOrders();
+  }catch(error){
+    toast("Delete failed. Please try again.","err");
+  }finally{
+    setLoading(false);
+  }
 }
 
 function askStatus(id,status){
@@ -528,6 +629,7 @@ async function confirmStatus(){
 function logout(){
   adminKey="";
   orders=[];
+  selectedIds.clear();
   document.getElementById("key").value="";
   document.getElementById("search").value="";
   document.getElementById("panel").style.display="none";
@@ -537,6 +639,9 @@ function logout(){
 
 document.getElementById("confirmModal").addEventListener("click",function(e){
   if(e.target===this)closeConfirm();
+});
+document.getElementById("deleteModal").addEventListener("click",function(e){
+  if(e.target===this)closeDeleteModal();
 });
 </script>
 </body>
