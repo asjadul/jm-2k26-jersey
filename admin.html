@@ -442,8 +442,8 @@ function renderFiltered(){
       action='<span class="locked">✕ Already rejected</span>';
     }else{
       action=
-        '<button class="accept" onclick="askStatus(\\''+escAttr(o.id)+'\\',\\'Accepted\\')">ACCEPT</button>'+
-        '<button class="reject" onclick="askStatus(\\''+escAttr(o.id)+'\\',\\'Rejected\\')">REJECT</button>';
+        '<button class="accept action-status" data-order="'+esc(o.id)+'" data-status="Accepted">ACCEPT</button>'+
+        '<button class="reject action-status" data-order="'+esc(o.id)+'" data-status="Rejected">REJECT</button>';
     }
 
     return '<tr>'+
@@ -458,6 +458,10 @@ function renderFiltered(){
       '<td>'+action+'</td>'+
     '</tr>';
   }).join("");
+
+  document.querySelectorAll(".action-status").forEach(btn=>{
+    btn.addEventListener("click",()=>askStatus(btn.dataset.order,btn.dataset.status));
+  });
 }
 
 function askStatus(id,status){
