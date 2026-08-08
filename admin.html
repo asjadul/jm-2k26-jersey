@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>J.M. 2K26 — Admin</title><style>
+body{font-family:Arial;background:#0d1117;color:#fff;margin:0}.wrap{max-width:1100px;margin:auto;padding:20px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:16px;padding:20px}h1{margin-top:0}
+input,button{padding:11px;border-radius:9px;border:1px solid #444;background:#0d1117;color:white}button{background:#238636;border:0;font-weight:bold;cursor:pointer}.table{overflow:auto;margin-top:18px}
+table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:10px;border-bottom:1px solid #30363d;text-align:left}th{color:#aaa}.accept{background:#238636}.reject{background:#da3633;margin-left:5px}.status{font-weight:bold}.login{max-width:420px;margin:60px auto}
+</style></head><body><div class="wrap"><div class="card login" id="login"><h2>J.M. 2K26 Admin</h2><input id="key" type="password" placeholder="Admin key" style="width:100%;box-sizing:border-box"><button onclick="load()" style="width:100%;margin-top:12px">LOGIN</button></div>
+<div class="card" id="panel" style="display:none"><h1>J.M. 2K26 Orders</h1><button onclick="loadOrders()">Refresh Orders</button><div class="table"><table><thead><tr><th>Order ID</th><th>Name</th><th>Jersey</th><th>No.</th><th>Size</th><th>Phone</th><th>Transaction ID</th><th>Status</th><th>Action</th></tr></thead><tbody id="rows"></tbody></table></div></div></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzpLyzU6tw3DcHdNUTQqruzHq9Q2WH2DFG_ZFF7hb2L9YfHKUDiBMAKlXN0McuxWBrNmw/exec";let adminKey="";
+async function load(){adminKey=document.getElementById('key').value;if(!adminKey)return;if(API_URL.includes("PASTE_"))return alert("Apps Script URL বসানো হয়নি।");document.getElementById('login').style.display='none';document.getElementById('panel').style.display='block';loadOrders()}
+async function loadOrders(){let r=await fetch(API_URL+"?action=admin&key="+encodeURIComponent(adminKey));let j=await r.json();if(!j.ok)return alert(j.error);rows.innerHTML=j.orders.map(o=>`<tr><td>${o.id}</td><td>${o.student}</td><td>${o.jerseyName}</td><td>${o.number}</td><td>${o.size}</td><td>${o.phone}</td><td>${o.trx}</td><td class="status">${o.status}</td><td><button class="accept" onclick="setStatus('${o.id}','Accepted')">ACCEPT</button><button class="reject" onclick="setStatus('${o.id}','Rejected')">REJECT</button></td></tr>`).join('')}
+async function setStatus(id,status){let r=await fetch(API_URL,{method:"POST",body:JSON.stringify({action:"setStatus",key:adminKey,orderId:id,status})});let j=await r.json();if(!j.ok)alert(j.error);loadOrders()}
+</script></body></html>

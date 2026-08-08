@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>J.M. 2K26 — Jersey Order</title>
+<style>
+body{margin:0;background:#0d1117;color:#fff;font-family:Arial,sans-serif}.wrap{max-width:720px;margin:auto;padding:22px 15px}
+.card{background:#161b22;border:1px solid #30363d;border-radius:18px;padding:24px;box-shadow:0 10px 30px #0004}
+h1{text-align:center;margin:0;font-size:34px}.sub{text-align:center;color:#aaa;margin:7px 0 20px}.price{text-align:center;font-size:25px;font-weight:700;margin:18px}
+label{display:block;font-weight:700;margin:15px 0 7px}input,select{width:100%;box-sizing:border-box;padding:13px;border-radius:10px;border:1px solid #444;background:#0d1117;color:white;font-size:16px}
+button{width:100%;padding:14px;border:0;border-radius:10px;background:#238636;color:#fff;font-size:17px;font-weight:bold;margin-top:20px;cursor:pointer}
+.pay{margin-top:20px;padding:16px;border-radius:12px;background:#111827}.bk{font-size:22px;font-weight:700}.small{color:#aaa;font-size:13px;line-height:1.5}
+.msg{display:none;margin-top:18px;padding:14px;border-radius:10px}.ok{background:#12351f;border:1px solid #2ea043}.err{background:#3b1717;border:1px solid #f85149}
+hr{border:0;border-top:1px solid #30363d;margin:28px 0}.status{display:flex;gap:8px}.status input{flex:1}.status button{width:auto;margin:0;padding:12px 18px}
+</style>
+</head>
+<body><div class="wrap"><div class="card">
+<h1>J.M. 2K26</h1><div class="sub">Batch Jersey Order</div>
+<div class="price">Jersey Price: ৳500</div>
+<form id="orderForm">
+<label>Your Name</label><input id="student" required>
+<label>Jersey Name</label><input id="jerseyName" maxlength="15" required>
+<label>Jersey Number</label><input id="number" type="number" min="0" max="99" required>
+<label>Jersey Size</label><select id="size" required><option value="">Select size</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option><option>XXXXL</option></select>
+<label>Your Phone Number</label><input id="phone" type="tel" required>
+<div class="pay"><b>bKash Payment</b><p>Send Money: <span class="bk">01621255476</span></p><p>Amount: <b>৳500</b></p><div class="small">Payment করার পর Transaction ID নিচে দিন। Transaction verify করার পর admin order Accept করবে।</div></div>
+<label>bKash Transaction ID</label><input id="trx" required>
+<button type="submit">SUBMIT ORDER</button><div id="msg" class="msg"></div>
+</form>
+<hr><h3>Check Order Status</h3>
+<div class="status"><input id="orderId" placeholder="Example: JM26-0001"><button onclick="checkStatus()">CHECK</button></div>
+<div id="statusMsg" class="msg"></div>
+</div></div>
+<script>
+const API_URL="https://script.google.com/macros/s/AKfycbzpLyzU6tw3DcHdNUTQqruzHq9Q2WH2DFG_ZFF7hb2L9YfHKUDiBMAKlXN0McuxWBrNmw/exec";
+function show(el,text,good){el.style.display='block';el.className='msg '+(good?'ok':'err');el.innerHTML=text}
+document.getElementById('orderForm').onsubmit=async e=>{
+ e.preventDefault(); if(API_URL.includes("PASTE_")) return show(document.getElementById('msg'),"Admin setup বাকি: Apps Script Web App URL বসাতে হবে।",false);
+ const data={action:"createOrder",student:student.value,jerseyName:jerseyName.value,number:number.value,size:size.value,phone:phone.value,trx:trx.value};
+ try{let r=await fetch(API_URL,{method:"POST",body:JSON.stringify(data)});let j=await r.json();show(msg,j.ok?`✅ Order submitted!<br>Order ID: <b>${j.orderId}</b><br>Status: 🟡 Payment Verification Pending`:j.error,j.ok);if(j.ok)e.target.reset()}catch(x){show(msg,"Submission failed. Try again.",false)}
+};
+async function checkStatus(){if(API_URL.includes("PASTE_"))return show(statusMsg,"Admin setup বাকি।",false);let id=orderId.value.trim();if(!id)return;try{let r=await fetch(API_URL+"?action=status&orderId="+encodeURIComponent(id));let j=await r.json();show(statusMsg,j.ok?`<b>${j.orderId}</b><br>Payment: ${j.status}`:j.error,j.ok)}catch(x){show(statusMsg,"Could not check status.",false)}}
+</script>
+</body></html>
