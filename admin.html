@@ -189,6 +189,10 @@ tbody tr:last-child td{border-bottom:0}
 .accept{background:#13783c}.accept:hover{background:#18a451}
 .reject{background:#ad2525;margin-left:5px}.reject:hover{background:#d33333}
 .locked{color:#657386;font-size:10px;font-weight:800}
+.payment-method{display:inline-flex;align-items:center;justify-content:center;min-width:56px;padding:5px 8px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.04em;border:1px solid #334252;background:#111923;color:#dbe7f3}
+.payment-method.bkash{color:#ffd1e0;background:rgba(226,39,111,.10);border-color:rgba(226,39,111,.28)}
+.payment-method.nagad{color:#ffd8d8;background:rgba(218,36,36,.10);border-color:rgba(218,36,36,.28)}
+.payment-method.cash{color:#c8f5df;background:rgba(25,196,99,.10);border-color:rgba(25,196,99,.28)}
 input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:pointer}
 .delete-note{color:#ff7777;font-size:11px;margin-top:9px}
 .key-modal-input{width:100%;margin-top:14px}
@@ -317,12 +321,13 @@ input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:p
               <th>Size</th>
               <th>Phone</th>
               <th>Transaction ID</th>
+              <th>Payment Method</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="rows">
-            <tr><td colspan="10" class="empty">Loading orders...</td></tr>
+            <tr><td colspan="11" class="empty">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -437,15 +442,23 @@ function updateStats(){
   document.getElementById("rejected").textContent=count("rejected");
 }
 
+function formatPaymentMethod(value){
+  const v=String(value||'').trim().toLowerCase();
+  if(v==='bkash') return '<span class="payment-method bkash">bKash</span>';
+  if(v==='nagad') return '<span class="payment-method nagad">Nagad</span>';
+  if(v==='cash') return '<span class="payment-method cash">Cash</span>';
+  return esc(value || '—');
+}
+
 function renderFiltered(){
   const q=document.getElementById("search").value.trim().toLowerCase();
   const filtered=orders.filter(o=>[
-    o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
+    o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.paymentMethod,o.status
   ].some(v=>String(v??"").toLowerCase().includes(q)));
 
   const rows=document.getElementById("rows");
   if(!filtered.length){
-    rows.innerHTML='<tr><td colspan="10" class="empty">No orders found.</td></tr>';
+    rows.innerHTML='<tr><td colspan="11" class="empty">No orders found.</td></tr>';
     updateSelectionUI();
     return;
   }
@@ -477,6 +490,7 @@ function renderFiltered(){
       '<td>'+esc(o.size)+'</td>'+
       '<td>'+esc(o.phone)+'</td>'+
       '<td>'+esc(o.trx)+'</td>'+
+      '<td>'+formatPaymentMethod(o.paymentMethod)+'</td>'+
       '<td><span class="status '+cls+'">'+esc(status)+'</span></td>'+
       '<td>'+action+'</td>'+
     '</tr>';
@@ -495,7 +509,7 @@ function toggleOne(id,checked){
 function toggleAll(checked){
   const q=document.getElementById("search").value.trim().toLowerCase();
   orders.filter(o=>[
-    o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
+    o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.paymentMethod,o.status
   ].some(v=>String(v??"").toLowerCase().includes(q))).forEach(o=>{
     if(checked) selectedIds.add(String(o.id)); else selectedIds.delete(String(o.id));
   });
@@ -512,7 +526,7 @@ function updateSelectionUI(){
   if(all){
     const q=document.getElementById("search").value.trim().toLowerCase();
     const visible=orders.filter(o=>[
-      o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.status
+      o.id,o.student,o.jerseyName,o.number,o.size,o.phone,o.trx,o.paymentMethod,o.status
     ].some(v=>String(v??"").toLowerCase().includes(q)));
     all.checked=visible.length>0 && visible.every(o=>selectedIds.has(String(o.id)));
     all.indeterminate=visible.some(o=>selectedIds.has(String(o.id))) && !all.checked;
