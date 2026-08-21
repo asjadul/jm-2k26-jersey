@@ -6,17 +6,18 @@
 <title>J.M. 2K26 — Admin</title>
 <style>
 :root{
-  --bg:#05070b;
-  --panel:#0d121a;
-  --panel2:#111923;
-  --border:#263241;
-  --text:#f7f9fc;
-  --muted:#8b98a8;
-  --blue:#1769ff;
-  --blue2:#438cff;
-  --green:#19c463;
-  --red:#f04444;
-  --yellow:#f4b740;
+  --bg:#020617;
+  --panel:#0b1220;
+  --panel2:#111827;
+  --border:rgba(255,255,255,.10);
+  --text:#f1f5f9;
+  --muted:#64748b;
+  --blue:#22d3ee;
+  --blue2:#818cf8;
+  --green:#34d399;
+  --red:#fb7185;
+  --yellow:#fbbf24;
+  --pink:#f472b6;
 }
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--text)}
@@ -63,15 +64,15 @@ input{
   border-radius:13px;padding:14px 15px;transition:.2s;
 }
 .login input{width:100%}
-input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(67,140,255,.12)}
+input:focus{border-color:#22d3ee;box-shadow:0 0 0 3px rgba(34,211,238,.12)}
 .primary{
   width:100%;border:0;border-radius:13px;padding:14px;margin-top:13px;
   color:#fff;font-weight:900;letter-spacing:.03em;
-  background:linear-gradient(135deg,#1158db,#438cff);
-  box-shadow:0 12px 28px rgba(23,105,255,.25);
+  background:linear-gradient(90deg,#22d3ee,#4f46e5,#f472b6);
+  box-shadow:0 12px 28px rgba(34,211,238,.18),0 8px 30px rgba(79,70,229,.16);
   transition:.2s;
 }
-.primary:hover{transform:translateY(-1px);filter:brightness(1.08)}
+.primary:hover{transform:translateY(-2px);filter:brightness(1.08);box-shadow:0 16px 34px rgba(34,211,238,.20)}
 .hint{text-align:center;color:#596779;font-size:11px;margin-top:14px}
 
 /* Loading overlay / spinner */
@@ -85,8 +86,9 @@ input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(67,140,255,.12)}
 }
 .spinner{
   width:42px;height:42px;border-radius:50%;border:4px solid #263447;
-  border-top-color:var(--blue2);animation:spin .75s linear infinite;margin:0 auto 14px;
+  border-top-color:var(--blue2);border-right-color:#a78bfa;animation:spin .75s linear infinite,loaderGlow 1.4s ease-in-out infinite alternate;margin:0 auto 14px;
 }
+@keyframes loaderGlow{from{filter:drop-shadow(0 0 0 rgba(103,232,249,0))}to{filter:drop-shadow(0 0 12px rgba(103,232,249,.45))}}
 @keyframes spin{to{transform:rotate(360deg)}}
 .loader-title{font-weight:900;font-size:14px}
 .loader-text{color:var(--muted);font-size:11px;margin-top:5px}
@@ -168,21 +170,21 @@ input:focus{border-color:var(--blue2);box-shadow:0 0 0 3px rgba(67,140,255,.12)}
 .orders-head h2{margin:0;font-size:17px}
 .search{width:min(330px,100%);padding:11px 13px}
 .table-wrap{overflow:auto;border:1px solid #293645;border-radius:15px}
-table{border-collapse:collapse;width:100%;min-width:1030px}
+table{border-collapse:collapse;width:100%;min-width:980px}
 th,td{padding:12px;border-bottom:1px solid #202b37;text-align:left;white-space:nowrap}
 th{background:#0a1017;color:#7f8d9e;font-size:10px;text-transform:uppercase;letter-spacing:.07em}
 td{font-size:12px}
-tbody tr:hover{background:#0d151f}
+tbody tr{transition:background .2s ease,transform .2s ease}tbody tr:hover{background:rgba(34,211,238,.045)}
 tbody tr:last-child td{border-bottom:0}
-.id{font-weight:900;color:#80aaff}
+.id{font-weight:900;color:#67e8f9}.clickable{cursor:pointer}.clickable:hover{color:#c4b5fd;text-decoration:underline;text-underline-offset:3px}.variant{font-weight:800;color:#c4b5fd}
 .status{
   display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;
   font-size:10px;font-weight:900;text-transform:uppercase
 }
 .status:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
-.status.pending{color:#f7c34b;background:rgba(244,183,64,.10)}
-.status.accepted{color:#41d77f;background:rgba(25,196,99,.10)}
-.status.rejected{color:#ff6d6d;background:rgba(240,68,68,.10)}
+.status.pending{color:#fbbf24;background:rgba(251,191,36,.10);animation:statusPulse 2s ease-in-out infinite}
+.status.accepted{color:#34d399;background:rgba(52,211,153,.10);animation:statusAccepted .7s ease-out}
+.status.rejected{color:#fb7185;background:rgba(251,113,133,.10);animation:statusRejected .55s ease-out}
 .accept,.reject{
   border:0;border-radius:8px;padding:7px 10px;color:#fff;font-size:10px;font-weight:900
 }
@@ -199,6 +201,20 @@ input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:p
 .empty{text-align:center;color:#6d7a8b;padding:32px!important}
 .footer{text-align:center;color:#4f5d6d;font-size:10px;margin-top:15px}
 
+@keyframes statusPulse{0%,100%{box-shadow:0 0 0 0 rgba(251,191,36,0)}50%{box-shadow:0 0 0 4px rgba(251,191,36,.07)}}
+@keyframes statusAccepted{from{opacity:0;transform:scale(.86) translateY(4px)}to{opacity:1;transform:none}}
+@keyframes statusRejected{0%{opacity:0;transform:translateX(-5px)}60%{transform:translateX(3px)}100%{opacity:1;transform:none}}
+.detail-modal .modal-card{width:min(700px,100%);max-height:min(86vh,760px);overflow:auto;background:linear-gradient(145deg,rgba(15,23,42,.98),rgba(7,13,25,.98));border-color:rgba(103,232,249,.18)}
+.detail-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px}
+.detail-title{margin:0;font-size:22px;font-weight:900;background:linear-gradient(90deg,#67e8f9,#a5b4fc,#f472b6);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.detail-sub{color:#64748b;font-size:11px;margin-top:4px}
+.detail-close{width:38px;height:38px;border-radius:12px;border:1px solid #26364a;background:#0b1320;color:#cbd5e1;font-size:20px;line-height:1;transition:.2s}.detail-close:hover{background:#142033;color:#fff;transform:rotate(90deg)}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.detail-item{padding:13px 14px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.075);animation:detailIn .35s ease both}
+.detail-item:nth-child(2){animation-delay:.03s}.detail-item:nth-child(3){animation-delay:.06s}.detail-item:nth-child(4){animation-delay:.09s}.detail-item:nth-child(5){animation-delay:.12s}.detail-item:nth-child(6){animation-delay:.15s}
+.detail-label{font-size:9px;text-transform:uppercase;letter-spacing:.09em;font-weight:900;color:#64748b;margin-bottom:5px}.detail-value{font-size:13px;font-weight:800;color:#e2e8f0;word-break:break-word}.detail-value.accent{color:#67e8f9}.detail-footer{margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);color:#64748b;font-size:10px}
+@keyframes detailIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@media(max-width:560px){.detail-grid{grid-template-columns:1fr}.detail-modal .modal-card{padding:20px}.detail-title{font-size:19px}}
 @media(max-width:800px){
   .corner-logo{width:76px;height:65px;left:10px;top:9px}
   .wrap{width:min(100% - 18px,1240px);padding-top:18px}
@@ -239,6 +255,18 @@ input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:p
       <button class="cancel" onclick="closeConfirm()">CANCEL</button>
       <button id="confirmBtn" class="confirm-accept" onclick="confirmStatus()">CONFIRM</button>
     </div>
+  </div>
+</div>
+
+
+<div class="modal detail-modal" id="detailModal">
+  <div class="modal-card">
+    <div class="detail-head">
+      <div><h2 class="detail-title">Order Details</h2><div class="detail-sub" id="detailSub">Complete order information</div></div>
+      <button class="detail-close" type="button" onclick="closeDetail()" aria-label="Close">×</button>
+    </div>
+    <div class="detail-grid" id="detailGrid"></div>
+    <div class="detail-footer">All available information for this order is shown here.</div>
   </div>
 </div>
 
@@ -313,21 +341,18 @@ input[type="checkbox"]{width:16px;height:16px;accent-color:var(--blue2);cursor:p
         <table>
           <thead>
             <tr>
-              <th style="width:40px"><input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" aria-label="Select all"></th>
               <th>Order ID</th>
-              <th>Name</th>
-              <th>Jersey</th>
-              <th>No.</th>
-              <th>Size</th>
+              <th>Jersey Name</th>
+              <th>Variant</th>
               <th>Phone</th>
-              <th>Transaction ID</th>
+              <th>TRX ID</th>
               <th>Payment Method</th>
               <th>Status</th>
               <th>Action</th>
             </tr>
           </thead>
           <tbody id="rows">
-            <tr><td colspan="11" class="empty">Loading orders...</td></tr>
+            <tr><td colspan="8" class="empty">Loading orders...</td></tr>
           </tbody>
         </table>
       </div>
@@ -458,7 +483,7 @@ function renderFiltered(){
 
   const rows=document.getElementById("rows");
   if(!filtered.length){
-    rows.innerHTML='<tr><td colspan="11" class="empty">No orders found.</td></tr>';
+    rows.innerHTML='<tr><td colspan="8" class="empty">No orders found.</td></tr>';
     updateSelectionUI();
     return;
   }
@@ -476,26 +501,78 @@ function renderFiltered(){
     }else if(lower==="rejected"){
       action='<span class="locked">✕ Already rejected</span>';
     }else{
-      action='<button class="accept" onclick="askStatus(\''+escAttr(o.id)+'\',\'Accepted\')">ACCEPT</button>'+
-             '<button class="reject" onclick="askStatus(\''+escAttr(o.id)+'\',\'Rejected\')">REJECT</button>';
+      action='<button class="accept" onclick="event.stopPropagation();askStatus(\''+escAttr(o.id)+'\',\'Accepted\')">ACCEPT</button>'+
+             '<button class="reject" onclick="event.stopPropagation();askStatus(\''+escAttr(o.id)+'\',\'Rejected\')">REJECT</button>';
     }
 
     const checked=selectedIds.has(String(o.id))?' checked':'';
+    const select='<input type="checkbox" class="order-check" data-id="'+escAttr(o.id)+'"'+checked+' onchange="event.stopPropagation();toggleOne(\''+escAttr(o.id)+'\',this.checked)" aria-label="Select '+escAttr(o.id)+'">';
+    const clickId="openDetailById(\'"+escAttr(o.id)+"\')";
     return '<tr>'+
-      '<td><input type="checkbox" class="order-check" data-id="'+escAttr(o.id)+'"'+checked+' onchange="toggleOne(\''+escAttr(o.id)+'\',this.checked)" aria-label="Select '+escAttr(o.id)+'"></td>'+
-      '<td class="id">'+esc(o.id)+'</td>'+
-      '<td>'+esc(o.student)+'</td>'+
-      '<td>'+esc(o.jerseyName)+'</td>'+
-      '<td>'+esc(o.number)+'</td>'+
-      '<td>'+esc(o.size)+'</td>'+
-      '<td>'+esc(o.phone)+'</td>'+
-      '<td>'+esc(o.trx)+'</td>'+
+      '<td class="id clickable" onclick="'+clickId+'" title="View order details">'+esc(o.id)+'</td>'+
+      '<td class="clickable" onclick="'+clickId+'" title="View order details">'+esc(o.jerseyName || '—')+'</td>'+
+      '<td class="variant clickable" onclick="'+clickId+'" title="View order details">'+esc(o.variant || '—')+'</td>'+
+      '<td>'+esc(o.phone || '—')+'</td>'+
+      '<td>'+esc(String(o.paymentMethod||'').toLowerCase()==='cash' ? (o.cashReceiver || '—') : (o.trx || '—'))+'</td>'+
       '<td>'+formatPaymentMethod(o.paymentMethod)+'</td>'+
       '<td><span class="status '+cls+'">'+esc(status)+'</span></td>'+
-      '<td>'+action+'</td>'+
+      '<td>'+select+action+'</td>'+
     '</tr>';
   }).join("");
   updateSelectionUI();
+}
+
+function openDetailById(id){
+  const order=orders.find(o=>String(o.id)===String(id));
+  if(order) openDetail(order);
+}
+
+function openDetail(order){
+  const grid=document.getElementById("detailGrid");
+  const preferred=[
+    ["Order ID",order.id,"accent"],
+    ["Timestamp",formatTimestamp(order.timestamp),""],
+    ["Name",order.student,""],
+    ["Email",order.email,""],
+    ["Jersey Name",order.jerseyName,"accent"],
+    ["Variant",order.variant,"accent"],
+    ["Jersey Number",order.number,""],
+    ["Size",order.size,""],
+    ["Phone",order.phone,""],
+    ["TRX ID",order.trx,""],
+    ["Payment Method",order.paymentMethod,""],
+    ["Cash Receiver",order.cashReceiver,""],
+    ["Price",order.price,""],
+    ["Status",order.status,"accent"]
+  ];
+  // Render only the approved fields; never show legacy Sleeve/Amount fields.
+  const fields=preferred;
+  grid.innerHTML=fields.map(([label,value,accent])=>
+    '<div class="detail-item"><div class="detail-label">'+esc(label)+'</div><div class="detail-value '+accent+'">'+formatDetailValue(value)+'</div></div>'
+  ).join("");
+  document.getElementById("detailSub").textContent="Order "+String(order.id||"—")+" • Complete available information";
+  document.getElementById("detailModal").classList.add("show");
+}
+
+function formatDetailLabel(key){
+  return String(key).replace(/([a-z])([A-Z])/g,"$1 $2").replace(/[_-]+/g," ").replace(/^./,c=>c.toUpperCase());
+}
+
+function formatTimestamp(value){
+  if(value===null || value===undefined || value==="") return "—";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return String(value);
+  return d.toLocaleString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+
+function formatDetailValue(value){
+  if(value===null || value===undefined || value==="") return "—";
+  if(typeof value==='object') return esc(JSON.stringify(value));
+  return esc(String(value));
+}
+
+function closeDetail(){
+  document.getElementById("detailModal").classList.remove("show");
 }
 
 let selectedIds=new Set();
@@ -651,6 +728,9 @@ function logout(){
   toast("Logged out.");
 }
 
+document.getElementById("detailModal").addEventListener("click",function(e){
+  if(e.target===this)closeDetail();
+});
 document.getElementById("confirmModal").addEventListener("click",function(e){
   if(e.target===this)closeConfirm();
 });
